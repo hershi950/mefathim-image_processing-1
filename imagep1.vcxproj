@@ -149,6 +149,7 @@
   <ItemGroup>
     <ClCompile Include="img.c" />
     <ClCompile Include="path.c" />
+    <ClCompile Include="plane.c" />
     <ClCompile Include="str_util.c" />
     <ClCompile Include="time_.c" />
     <ClCompile Include="trap.c" />

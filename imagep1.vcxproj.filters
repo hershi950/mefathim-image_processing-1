@@ -84,5 +84,8 @@
     <ClCompile Include="wm_paint.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="plane.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

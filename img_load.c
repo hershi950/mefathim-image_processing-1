@@ -138,7 +138,7 @@ static IMG_ERR _load_bmp_v5(IMG* img, FILE* f)
 		return IMG_ERR_UK;
 
 	// allocate three color planes
-	if (!(img->pxl = malloc(sizeof(*img->pxl) * img->nPxls * IMG_COLOR_PLANES)))
+	if (!(img->color = malloc(sizeof(*img->color) * img->nPxls * IMG_COLOR_PLANES)))
 		return IMG_ERR_ALLOC;
 
 	// allocate a buffer to read the entire file and read it
@@ -148,13 +148,13 @@ static IMG_ERR _load_bmp_v5(IMG* img, FILE* f)
 	if (_f_err = _my_read(bits, img->nPxls * sizeof(unsigned), f))
 		return _f_err;
 
-	IMG_COLOR* red = img->red = img->pxl;
+	IMG_COLOR* red = img->red = img->color;
 	IMG_COLOR* green = img->green = img->red + img->nPxls;
 	IMG_COLOR* blue = img->blue = img->green + img->nPxls;
 
-	unsigned* pxl = bits;
-	for (unsigned n = img->nPxls; n > 0; n--, pxl++) {
-		byte* b = (byte*)pxl;
+	unsigned* color = bits;
+	for (unsigned n = img->nPxls; n > 0; n--, color++) {
+		byte* b = (byte*)color;
 		*red++ = b[iRed] << _SHIFT;
 		*green++ = b[iGreen] << _SHIFT;
 		*blue++ = b[iBlue] << _SHIFT;
@@ -199,13 +199,13 @@ static IMG_ERR _load_bmp_ih(IMG *img, BITMAPINFOHEADER *ih, FILE *f)
 	img->height = IH.biHeight;
 	img->nPxls = img->width * img->height;
 	img->nPlanes = IMG_COLOR_PLANES;
-	img->nBytes = img->nPxls * sizeof(*img->pxl) * IMG_COLOR_PLANES;
+	img->nBytes = img->nPxls * sizeof(*img->color) * IMG_COLOR_PLANES;
 
 
 	// allocate BMP color planes
 	// -------------------------
-	img->pxl = malloc(img->nBytes);
-	if (!img->pxl) {
+	img->color = malloc(img->nBytes);
+	if (!img->color) {
 		free(bits);
 		return IMG_ERR_ALLOC;
 	}
@@ -213,7 +213,7 @@ static IMG_ERR _load_bmp_ih(IMG *img, BITMAPINFOHEADER *ih, FILE *f)
 
 	// Populate the color planes
 	byte* b = bits;
-	IMG_COLOR* red = img->red = img->pxl;
+	IMG_COLOR* red = img->red = img->color;
 	IMG_COLOR* green = img->green = img->red + img->width * img->height;
 	IMG_COLOR* blue = img->blue = img->green + img->width * img->height;
 	for (unsigned n = img->nPxls; n > 0; n--) {

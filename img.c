@@ -4,6 +4,7 @@
 #include <stdlib.h>
 
 #include "img_.h"
+#include "trap.h"
 
 //#include "lzw.h"
 
@@ -14,8 +15,8 @@
 IMG *img_dtor(IMG *img)
 {
 	if (img) {
-		if (img->pxl)
-			free(img->pxl);
+		if (img->color)
+			free(img->color);
 		memset(img, 0, sizeof(IMG));
 	}
 	return img;
@@ -63,7 +64,7 @@ IMG *img_to_grey(const IMG *imgColored)
 	// fill the new image struct. These are adjustments to the colored image members
 	memcpy (imgGrey, imgColored, sizeof(IMG));
 	imgGrey->red = imgGrey->green = imgGrey->blue = (IMG_COLOR *)0;
-	imgGrey->grey = imgGrey->pxl = grey;
+	imgGrey->grey = imgGrey->color = grey;
 	imgGrey->nPlanes = 1;
 	imgGrey->nBytes = imgColored->nPxls * sizeof(*grey);
 
@@ -77,7 +78,7 @@ IMG *img_to_grey(const IMG *imgColored)
 
 
  /* ================================================================= *\
-|					Obtain image dimensions							|
+|					Obtain image dimensions							    |
  \* ================================================================= */
 void img_dim (int *width, int *height, const IMG *img)
 {
@@ -89,4 +90,71 @@ void img_dim (int *width, int *height, const IMG *img)
 }
 
 
+// -----------------------------------------------------------------------------
+// duplicate an image. The call also duplicates the color plane(s), if they exist
+// -----------------------------------------------------------------------------
+IMG *img_dup(IMG *img)
+{
+	if (!img) 
+		return img;
+
+	IMG_COLOR *color = malloc(img->nBytes);
+	IMG *I = malloc(sizeof(IMG));
+	if (!color || !I) {
+		if (color)
+			free(color);
+		if (I)
+			free(I);
+		return (IMG*)0;
+	}
+
+	memcpy (I, img, sizeof(IMG));
+	I->color = color;
+	memcpy (I->color, img->color, img->nBytes);
+	switch (img->nPlanes) {
+		case 1:
+			I->grey = I->color;
+			break;
+		case IMG_COLOR_PLANES:
+			I->red = I->color;
+			I->green = I->red + I->width * I->height;
+			I->blue = I->green + I->width * I->height;
+			break;
+		default:
+			fatal_error();
+	}
+	return I;
+}
+
+
+
  
+// ------------------------------------------------------------------------------------------
+// Rotate an image by 'angle' degrees. See header
+// ------------------------------------------------------------------------------------------
+IMG *img_rotate(IMG *img, int angle, _Bool newImage)
+{
+	if (newImage)
+		img = img_dup(img);
+	if (!img)
+		return img;
+	switch (img->nPlanes) {
+
+		case 1:
+			plane_rotate(img->grey, img->width, img->height, angle);
+			break;
+
+		case IMG_COLOR_PLANES:
+			plane_rotate(img->red,   img->width, img->height, angle);
+			plane_rotate(img->green, img->width, img->height, angle);
+			plane_rotate(img->blue,  img->width, img->height, angle);
+			break;
+
+		default:
+			fatal_error();
+	}
+
+	return img;
+}
+
+

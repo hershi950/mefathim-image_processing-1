@@ -36,7 +36,7 @@ struct _img {
 //	int					bprl;		/* Bytes per raster line */
 	int			width, height;
 	IMG_COLOR* red, * green, * blue, * grey;
-	IMG_COLOR* pxl;
+	IMG_COLOR* color;
 	unsigned   nPxls; // total number of pixels in image
 	unsigned   nBytes; // total number of bytes in image
 };

@@ -41,6 +41,8 @@ struct State {
     IMG *img;     // currently displayed image or nulll
     HBITMAP dib; // dib associated with image.
 
+    int rotation; // current rotation in angles
+
     _Bool isScrollbarVert, isScrollbarHorz; // vertical or horizonatl scroll bars are shown?
     int sb_vert; int sb_horz; // scroll bar vertical and horizontal offset
 

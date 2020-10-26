@@ -30,7 +30,7 @@ void windows_console(int max_lines)
 //    hConHandle = _open_osfhandle(stdHandle, _O_TEXT);
     fd = _open_osfhandle((intptr_t)GetStdHandle(STD_OUTPUT_HANDLE), _O_TEXT);
     _f_out = _fdopen(fd, "w"); 
-    fprintf (_f_out, "helooooooooooo\n"); fflush(_f_out);
+//    fprintf (_f_out, "helooooooooooo\n"); fflush(_f_out);
 //    *stdout = *fp;
     setvbuf(stdout, NULL, _IONBF, 0);
 
@@ -46,6 +46,7 @@ void windows_console(int max_lines)
 //    *stderr = *fp;
     setvbuf(stderr, NULL, _IONBF, 0);
 
+    fprintf(_f_out, "Windows console\n"); fflush(_f_out);
     // make cout, wcout, cin, wcin, wcerr, cerr, wclog and clog
     // point to console as well
 //    ios::sync_with_stdio();
@@ -59,7 +60,9 @@ int windows_console_printf(const char* format, ...)
 
     va_list va;
     va_start(va, format);
-    return vfprintf(_f_out, format, va);
+    int ret = vfprintf(_f_out, format, va);
+    fflush(_f_out);
+    return ret;
 }
 
 

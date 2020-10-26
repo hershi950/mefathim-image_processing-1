@@ -15,8 +15,9 @@
 
 #pragma warning(disable : 4996)
 
-static IMG *_img_open(HWND hWnd, struct State *state, const char path[]);
-static IMG* _img_reopen(HWND hWnd, struct State* state, int iPath);
+static IMG *_cmd_open(HWND hWnd, struct State *state, const char path[]);
+static IMG *_cmd_reopen(HWND hWnd, struct State *state, int iPath);
+static void _cmd_rotate(HWND hWnd, struct State* state);
 
 
 // process commands issued by the user
@@ -33,10 +34,22 @@ LRESULT imp1_wm_command(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
         case IMP1_CMD_FILE_OPEN:
             if (open_file_dialog(path, sizeof(path), hWnd)) {
-                if (_img_open(hWnd, state, path))
+                if (_cmd_open(hWnd, state, path))
                     InvalidateRect(hWnd, NULL, TRUE);
                 break;
             }
+
+
+        case IMP1_CMD_ROTATE_ANTI:
+            state->rotation += 90;
+            _cmd_rotate(hWnd, state);
+            break;
+
+        case IMP1_CMD_ROTATE_CLOCK:
+            state->rotation -= 90;
+            _cmd_rotate(hWnd, state);
+            break;
+
 
 //    case IDM_ABOUT:
 //        DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
@@ -50,7 +63,7 @@ LRESULT imp1_wm_command(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             if (cmd >= IMP1_CMD_FILE_NAME && cmd < IMP1_CMD_FILE_z) {
                 i = cmd - IMP1_CMD_FILE_NAME;
                 if (i >= 0 && i < state->nPaths)
-                    if (_img_reopen(hWnd, state, i)) {
+                    if (_cmd_reopen(hWnd, state, i)) {
                         InvalidateRect(hWnd, NULL, TRUE);
                         break;
                     }
@@ -84,7 +97,7 @@ LRESULT imp1_wm_create(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     SetMenu(hWnd, hMenu);
 
     windows_console(300);
-    _img_open(hWnd, &state, "c:/dev/mefathim/C-course/imageprocessing/imagep1/IMG-20181031-WA0000.bmp");
+    _cmd_open(hWnd, &state, "c:/dev/mefathim/C-course/imageprocessing/imagep1/IMG-20181031-WA0000.bmp");
     return DefWindowProc(hWnd, message, wParam, lParam);
 }
 
@@ -102,7 +115,7 @@ LRESULT imp1_wm_destory(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 static int _now = 0;
 static void _build_menu(HWND hWnd, struct State * state);
 static IMG *_load(struct State* state, const char path[]);
-IMG *_img_open(HWND hWnd, struct State *state, const char path[])
+IMG *_cmd_open(HWND hWnd, struct State *state, const char path[])
 {
     IMG *img = _load(state, path);
     if (!img)
@@ -148,7 +161,7 @@ IMG *_img_open(HWND hWnd, struct State *state, const char path[])
 
 
 // reopen an image that is already in the list of files
-static IMG *_img_reopen(HWND hWnd, struct State* state, int iPath)
+static IMG *_cmd_reopen(HWND hWnd, struct State* state, int iPath)
 {
     if (iPath < 0 || iPath >= state->nPaths)
         return(IMG *)0;
@@ -176,7 +189,7 @@ static IMG *_load(struct State *state, const char path[])
     // generate a DIB for this image
     if (state->dib)
         DeleteObject(state->dib);
-    state->dib = img_dib((HDC)NULL, state->img);
+    state->dib = (HBITMAP)0;
     return img;
 }
 
@@ -207,3 +220,12 @@ static void _build_menu(HWND hWnd, struct State* state)
 }
 
 
+static void _cmd_rotate(HWND hWnd, struct State *state)
+{
+    const int iPath = state->iPath;
+    if (iPath < 0 || iPath >= state->nPaths)
+        return;
+    _load(state, state->path[iPath]);
+    img_rotate(state->img, state->rotation, false);
+    InvalidateRect(hWnd, NULL, true);
+}

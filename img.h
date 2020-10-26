@@ -39,7 +39,25 @@ HBITMAP img_dib(HDC hdc, const IMG *img);
 
 
 
+// ------------------------------------------
+// Return image dimenions in width and height
+// ------------------------------------------
 void img_dim(int *width, int *height, const IMG *img);
+
+
+// -----------------------------------------------------------------------------
+// duplicate an image. The call also duplicates the color plane(s), if they exist
+// -----------------------------------------------------------------------------
+IMG *img_dup(IMG* img);
+
+
+
+// ------------------------------------------------------------------------------------------
+// Rotate an image by 'angle' degrees. If 'angle' > 0 rorate anti clockwise else clockwise. 
+// if newImage == true, a new image is allocated and the input 'img' is untacked.
+// otherwise, the planes of the input 'img' are re-populated with the rotated image
+// ------------------------------------------------------------------------------------------
+IMG *img_rotate(IMG *img, int angle, _Bool newImage);
 
 // ---------------------------------------------------------------
 // delete an image that was created by img_load() or img_to_grey()

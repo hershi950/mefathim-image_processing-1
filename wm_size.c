@@ -95,14 +95,14 @@ LRESULT imp1_wm_scroll(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case SB_PAGEDOWN: pos += PAGE_INCREMENT; break;
 
 		// User clicked the left arrow. 
-		case SB_LINEUP: pos -= 5; break;
+		case SB_LINEUP: pos -= LINE_INCREMENT; break;
 
 		// User clicked the right arrow. 
-		case SB_LINEDOWN: pos += 5; break;
+		case SB_LINEDOWN: pos += LINE_INCREMENT; break;
 
-		// User dragged the scroll box. 
-//		case SB_THUMBPOSITION: 	xNewPos = HIWORD(wParam);
-//			break;
+		// User dragged/dragging the scroll box. 
+		case SB_THUMBTRACK:
+		case SB_THUMBPOSITION: 	 pos = info.nTrackPos; break;
 	}
 
 	// make sure new position is within scrollbar range 
